@@ -1,4 +1,5 @@
 #include<string>
+#include<vector>
 
 #if !defined(CORE_BASIC_TYPES_H_)
 #define CORE_BASIC_TYPES_H_
@@ -12,8 +13,11 @@ class Road {
     int max_speed; // 最高限速
     int from_id; // 起点路口id
     int to_id; // 终点路口id
-    int channels; // 车道数目
+    int channels_num; // 车道数目
     bool is_duplex; // 是否双向道路
+
+    vector<vector<Car>> s2e_channels; // 正向车道 from_cross -> to_cross
+    vector<vector<Car>> e2s_channels; // 反向车道 to_cross -> from_cross
 
     Road(int id_, int length_, int max_speed_, int from_id_, int to_id_,
         int channels_, bool is_duplex_) {
@@ -22,7 +26,7 @@ class Road {
       max_speed = max_speed_;
       from_id = from_id_;
       to_id = to_id_;
-      channels = channels_;
+      channels_num = channels_;
       is_duplex = is_duplex_;
     }
 };
@@ -34,6 +38,7 @@ class Car {
     int to_id; // 目的地路口id
     int max_speed; // 最高时速
     int plan_time; // 计划出发时间
+    int status; // 0 - 未出发且不可出发 1 - 可出发但未出发 2 - 已出发 3 - 已到达
 
     Car(int id_, int from_id_, int to_id_, int max_speed_, int plan_time_) {
       id = id_;
@@ -61,10 +66,5 @@ class Cross {
       left_road_id = left_road_id_;
     }
 };
-
-class TrafficDatabase {
-  public:
-    
-}
 
 #endif // CORE_BASI_CTYPES_H_

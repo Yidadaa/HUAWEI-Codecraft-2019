@@ -26,6 +26,12 @@ Private repo for HUAWEI codecraft 2019 via Team - HuaHuaGuai
 #### 关于车道的需要注意的点
 1. 车道有容量限制，一辆车的长度为1，则长度为L的单车道最多可以容纳L辆车。
 
+### 运行此项目
+#### 安装`google test`依赖库
+`google test`库只会在开发阶段用到，提交代码时并不会用到此库。安装方法：
+1. 安装源代码：`sudo apt-get install libgtest-dev`
+2. 编译源代码：`cd /usr/src/gtest && sudo cmake . && sudo make`
+3. 安装编译完成的文件：`sudo cp libgtest*.a /usr/local/lib`
 
 ### 代码风格约定
 本仓库中所有代码应遵循[Google开源项目风格指南](https://zh-google-styleguide.readthedocs.io/en/latest/contents/)。

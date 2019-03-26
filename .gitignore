@@ -9,6 +9,7 @@ compile_commands.json
 CTestTestfile.cmake
 
 build
+bin
 
 # ignore vscode settings
 ipch

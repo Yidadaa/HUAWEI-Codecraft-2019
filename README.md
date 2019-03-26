@@ -33,6 +33,13 @@ Private repo for HUAWEI codecraft 2019 via Team - HuaHuaGuai
 2. 编译源代码：`cd /usr/src/gtest && sudo cmake . && sudo make`
 3. 安装编译完成的文件：`sudo cp libgtest*.a /usr/local/lib`
 
+#### 编译并运行
+```bash
+mkdir build && cd build # 创建缓存目录
+cmake .. && make # 编译源代码
+cd ../bin && ./TestCodeCraft # 运行单元测试
+```
+
 ### 代码风格约定
 本仓库中所有代码应遵循[Google开源项目风格指南](https://zh-google-styleguide.readthedocs.io/en/latest/contents/)。
 

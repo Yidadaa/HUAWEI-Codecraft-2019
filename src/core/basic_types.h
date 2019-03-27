@@ -94,7 +94,13 @@ class Traffic {
     vector<TrafficInstance> initInstance(string file_path);
 
     template<typename T>
-    map<int, int> buildMapIndex(vector<T>&);
+    map<int, int> buildMapIndex(vector<T>& vs) {
+      map<int, int> tmp_id2index;
+      for (int i = 0; i < int(vs.size()); i++) {
+        tmp_id2index[vs[i].id] = i;
+      }
+      return tmp_id2index;
+    };
 };
 
 #endif // CORE_BASI_CTYPES_H_

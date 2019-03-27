@@ -26,6 +26,19 @@ class Car {
     Car(int id_, int from_id_, int to_id_, int max_speed_, int plan_time_);
     Car(string s);
     void updateStatus(int new_status);
+
+    /* 车辆在车库中出库的优先级
+     * 1. 如果出发时间不同，则先出发者优先级高
+     * 2. 如果出发时间相通，则id小者优先级高
+     */
+    struct cmpAtPort {
+      bool operator () (Car a, Car b) {
+        return !(
+          (a.plan_time < b.plan_time) ||
+          (a.plan_time == b.plan_time && a.id < b.id)
+        );
+      }
+    };
 };
 
 class Road {
@@ -54,13 +67,15 @@ class Cross {
     int bottom_road_id; // 6点方向路口id
     int left_road_id; // 9点方向路口id
 
-    priority_queue<Car> car_port; // 神奇车库，使用优先队列来实现，出库的时候按照id从小到达出发
+    // 神奇车库，使用优先队列来实现，出库的时候按照id以及出发时间进行排序出发
+    priority_queue<Car, vector<Car>, Car::cmpAtPort> car_port;
 
     Cross(int id_, int top_road_id_, int right_road_id_, int bottom_road_id_,
         int left_road_id_);
     Cross(string s);
 
-    int addCar();
+    /* 向车库中添加一辆车 */
+    int addCar(const Car& c);
 };
 
 class Traffic {
@@ -71,7 +86,7 @@ class Traffic {
 
     int initTraffic(string car_path, string cross_path, string road_path);
     template<class TrafficInstance>
-    int initInstance(string file_path);
+    vector<TrafficInstance>  initInstance(string file_path);
 };
 
 #endif // CORE_BASI_CTYPES_H_

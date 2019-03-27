@@ -16,7 +16,8 @@ Road::Road(int id_, int length_, int max_speed_, int from_id_, int to_id_,
 Road::Road(string s) {
   stringstream ss;
   ss << s;
-  ss >> id >> length >> max_speed >> from_id >> to_id >> channels_num >> is_duplex;
+  ss >> id >> length >> max_speed >> channels_num >>
+    from_id >> to_id >> channels_num >> is_duplex;
 }
 
 Car::Car(int id_, int from_id_, int to_id_, int max_speed_, int plan_time_) {
@@ -54,29 +55,30 @@ Cross::Cross(string s) {
   ss >> id >> top_road_id >> right_road_id >> bottom_road_id >> left_road_id;
 }
 
-int Cross::addCar() {
-  /*TODO*/
-  return 1;
+int Cross::addCar(const Car& c) {
+  car_port.push(c);
+  return car_port.size();
 }
 
 int Traffic::initTraffic(string car_path, string road_path, string cross_path) {
-  initInstance<Car>(car_path);
-  initInstance<Road>(road_path);
-  initInstance<Cross>(cross_path);
+  // 构建路网的基本实例
+  cars = initInstance<Car>(car_path);
+  roads = initInstance<Road>(road_path);
+  crosses = initInstance<Cross>(cross_path);
   return 1;
 }
 
 template<class TrafficInstance>
-int Traffic::initInstance(string file_path) {
+vector<TrafficInstance> Traffic::initInstance(string file_path) {
   vector<TrafficInstance> instances;
 
-  ifstream road_file;
-  road_file.open(file_path);
+  ifstream the_file;
+  the_file.open(file_path);
 
-  if (!road_file.is_open()) return -1;
+  if (!the_file.is_open()) return instances;
 
   string temp_string;
-  while (getline(road_file, temp_string)) {
+  while (getline(the_file, temp_string)) {
     // 跳过注释行
     if (temp_string[0] == '#') continue;
 
@@ -92,8 +94,6 @@ int Traffic::initInstance(string file_path) {
     instances.push_back(TrafficInstance(filtered_string));
   }
 
-  cout << instances.size() << endl;
-
-  road_file.close();
-  return 1;
+  the_file.close();
+  return instances;
 }

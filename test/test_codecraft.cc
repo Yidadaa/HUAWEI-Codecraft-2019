@@ -19,6 +19,22 @@ public:
   Traffic traffic = Traffic();
 };
 
+class SimpleTrafficData : public testing::Test {
+public:
+  virtual void SetUp() {
+    vector<string> test_cars = {
+      "1 1 2 3 1",
+      "2 1 2 3 2",
+      "3 1 2 3 1",
+      "4 1 2 3 2"
+    };
+    for (auto s:test_cars) {
+      cars.push_back(Car(s));
+    }
+  }
+  vector<Car> cars;
+};
+
 TEST_F(TrafficTestEnv, test_traffic) {
   ASSERT_EQ(the_argc, 4) << "Test arguments must be 4";
   EXPECT_EQ(traffic.cars.size(), 128);
@@ -49,23 +65,28 @@ TEST_F(TrafficTestEnv, test_traffic) {
   EXPECT_EQ(traffic.crosses[0].left_road_id, -1);
 }
 
-TEST_F(TrafficTestEnv, test_cross_car_port) {
+/* 测试神奇车库的出库功能 */
+TEST_F(SimpleTrafficData, test_cross_car_port) {
   auto test_cross = Cross("1 1000 1001 1002 1003");
-  vector<string> test_cars = {
-    "1 1 2 3 1",
-    "2 1 2 3 2",
-    "3 1 2 3 1",
-    "4 1 2 3 2"
-  };
-  for (auto s:test_cars) {
-    test_cross.addCar(Car(s));
+
+  for (auto c:cars) {
+    test_cross.addCar(c);
   }
-  const int n = int(test_cars.size());
+  const int n = int(cars.size());
   ASSERT_EQ(test_cross.car_port.size(), n);
   int cases[] = { 1, 3, 2, 4 };
   for (int i = 0; i < n; i++) {
     EXPECT_EQ(test_cross.car_port.top().id, cases[i]);
     test_cross.car_port.pop();
+  }
+}
+
+/* 测试索引建立功能 */
+TEST_F(SimpleTrafficData, test_traffic_buildmapindex) {
+  auto traffic = Traffic();
+  auto car_index = traffic.buildMapIndex(cars);
+  for (int i = 0; i < int(cars.size()); i++) {
+    EXPECT_EQ(car_index[cars[i].id], i);
   }
 }
 

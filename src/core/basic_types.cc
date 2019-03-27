@@ -97,3 +97,12 @@ vector<TrafficInstance> Traffic::initInstance(string file_path) {
   the_file.close();
   return instances;
 }
+
+template<typename T>
+map<int, int> Traffic::buildMapIndex(vector<T>& vs) {
+  map<int, int> tmp_id2index;
+  for (int i = 0; i < int(vs.size()); i++) {
+    tmp_id2index[vs[i].id] = i;
+  }
+  return tmp_id2index;
+}

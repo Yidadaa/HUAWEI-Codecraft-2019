@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <map>
 
 #if !defined(CORE_BASIC_TYPES_H_)
 #define CORE_BASIC_TYPES_H_
@@ -84,9 +85,16 @@ class Traffic {
     vector<Road> roads;
     vector<Car> cars;
 
+    map<int, int> car_id2index;
+    map<int, int> road_id2index;
+    map<int, int> cross_id2index;
+
     int initTraffic(string car_path, string cross_path, string road_path);
     template<class TrafficInstance>
-    vector<TrafficInstance>  initInstance(string file_path);
+    vector<TrafficInstance> initInstance(string file_path);
+
+    template<typename T>
+    map<int, int> buildMapIndex(vector<T>&);
 };
 
 #endif // CORE_BASI_CTYPES_H_

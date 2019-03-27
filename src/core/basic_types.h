@@ -101,6 +101,7 @@ class Traffic {
       }
       return tmp_id2index;
     };
+    void portCarsToPort();
 };
 
 #endif // CORE_BASI_CTYPES_H_

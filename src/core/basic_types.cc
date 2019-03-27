@@ -16,8 +16,8 @@ Road::Road(int id_, int length_, int max_speed_, int from_id_, int to_id_,
 Road::Road(string s) {
   stringstream ss;
   ss << s;
-  ss >> id >> length >> max_speed >> channels_num >>
-    from_id >> to_id >> channels_num >> is_duplex;
+  ss >> id >> length >> max_speed >> channels_num
+    >> from_id >> to_id >> is_duplex;
 }
 
 Car::Car(int id_, int from_id_, int to_id_, int max_speed_, int plan_time_) {
@@ -97,3 +97,5 @@ vector<TrafficInstance> Traffic::initInstance(string file_path) {
   the_file.close();
   return instances;
 }
+
+void 

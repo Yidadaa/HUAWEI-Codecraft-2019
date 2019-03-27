@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <map>
+#include <unordered_map>
 
 #if !defined(CORE_BASIC_TYPES_H_)
 #define CORE_BASIC_TYPES_H_
@@ -52,8 +52,8 @@ class Road {
     int channels_num; // 车道数目
     bool is_duplex; // 是否双向道路
 
-    vector<vector<Car>> s2e_channels; // 正向车道 from_cross -> to_cross
-    vector<vector<Car>> e2s_channels; // 反向车道 to_cross -> from_cross
+    vector<vector<int>> s2e_channels; // 正向车道 from_cross -> to_cross
+    vector<vector<int>> e2s_channels; // 反向车道 to_cross -> from_cross
 
     Road(int id_, int length_, int max_speed_, int from_id_, int to_id_,
         int channels_, bool is_duplex_);
@@ -85,22 +85,24 @@ class Traffic {
     vector<Road> roads;
     vector<Car> cars;
 
-    map<int, int> car_id2index;
-    map<int, int> road_id2index;
-    map<int, int> cross_id2index;
+    unordered_map<int, int> car_id2index;
+    unordered_map<int, int> road_id2index;
+    unordered_map<int, int> cross_id2index;
 
-    int initTraffic(string car_path, string cross_path, string road_path);
+    void initTraffic(string car_path, string cross_path, string road_path);
+
     template<class TrafficInstance>
     vector<TrafficInstance> initInstance(string file_path);
 
     template<typename T>
-    map<int, int> buildMapIndex(vector<T>& vs) {
-      map<int, int> tmp_id2index;
+    unordered_map<int, int> buildMapIndex(vector<T>& vs) {
+      unordered_map<int, int> tmp_id2index;
       for (int i = 0; i < int(vs.size()); i++) {
         tmp_id2index[vs[i].id] = i;
       }
       return tmp_id2index;
     };
+
     void portCarsToPort();
 };
 

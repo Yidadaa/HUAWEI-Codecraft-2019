@@ -1,4 +1,8 @@
-mkdir build
+# 如果build路径不存在，则创建该路径
+if [ ! -d './build' ]; then
+  mkdir build
+fi
+
 cd build
 cmake ..
 make

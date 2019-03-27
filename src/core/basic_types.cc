@@ -60,12 +60,16 @@ int Cross::addCar(const Car& c) {
   return car_port.size();
 }
 
-int Traffic::initTraffic(string car_path, string road_path, string cross_path) {
+void Traffic::initTraffic(string car_path, string road_path, string cross_path) {
   // 构建路网的基本实例
   cars = initInstance<Car>(car_path);
   roads = initInstance<Road>(road_path);
   crosses = initInstance<Cross>(cross_path);
-  return 1;
+  car_id2index = buildMapIndex<Car>(cars);
+  road_id2index = buildMapIndex<Road>(roads);
+  cross_id2index = buildMapIndex<Cross>(crosses);
+
+  portCarsToPort();
 }
 
 template<class TrafficInstance>
@@ -98,4 +102,14 @@ vector<TrafficInstance> Traffic::initInstance(string file_path) {
   return instances;
 }
 
-void 
+/* 讲车辆停靠在对应的车库中去 */
+void Traffic::portCarsToPort() {
+  for (auto c:cars) {
+    if (c.from_id) {
+      auto the_cross_index = cross_id2index.find(c.from_id);
+      if (the_cross_index != cross_id2index.end()) {
+        crosses[the_cross_index->second].addCar(c);
+      }
+    }
+  }
+}

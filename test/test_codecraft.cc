@@ -26,7 +26,8 @@ public:
       "1 1 2 3 1",
       "2 1 2 3 2",
       "3 1 2 3 1",
-      "4 1 2 3 2"
+      "4 1 2 3 2",
+      "5 2 3 3 2"
     };
     for (auto s:test_cars) {
       cars.push_back(Car(s));
@@ -63,6 +64,13 @@ TEST_F(TrafficTestEnv, test_traffic) {
   EXPECT_EQ(traffic.crosses[0].right_road_id, 5005);
   EXPECT_EQ(traffic.crosses[0].bottom_road_id, -1);
   EXPECT_EQ(traffic.crosses[0].left_road_id, -1);
+
+  /* 测试车辆是否正确地停到车库中 */
+  int s = 0;
+  for (auto cross:traffic.crosses) {
+    s += cross.car_port.size();
+  }
+  EXPECT_EQ(s, traffic.cars.size());
 }
 
 /* 测试神奇车库的出库功能 */

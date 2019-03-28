@@ -77,14 +77,18 @@ TEST_F(TrafficTestEnv, test_traffic) {
 TEST_F(SimpleTrafficData, test_cross_car_port) {
   auto test_cross = Cross("1 1000 1001 1002 1003");
 
-  for (auto c:cars) {
-    test_cross.addCar(c);
+  for (auto it = cars.begin(); it != cars.end(); it++) {
+    test_cross.addCar(&*it);
+    it->updateStatus(1); // 更改车辆状态，查看车库中车辆状态是否已同步更改
   }
+
   const int n = int(cars.size());
   ASSERT_EQ(test_cross.car_port.size(), n);
-  int cases[] = { 1, 3, 2, 4 };
+
+  int cases[] = { 1, 3, 2, 4, 5 };
   for (int i = 0; i < n; i++) {
-    EXPECT_EQ(test_cross.car_port.top().id, cases[i]);
+    EXPECT_EQ(test_cross.car_port.top()->id, cases[i]);
+    EXPECT_EQ(test_cross.car_port.top()->status, 1);
     test_cross.car_port.pop();
   }
 }

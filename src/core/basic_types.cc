@@ -55,7 +55,8 @@ Cross::Cross(string s) {
   ss >> id >> top_road_id >> right_road_id >> bottom_road_id >> left_road_id;
 }
 
-int Cross::addCar(const Car& c) {
+/* 车辆入库操作使用指针，来保证全局状态统一 */
+int Cross::addCar(Car* c) {
   car_port.push(c);
   return car_port.size();
 }
@@ -102,13 +103,13 @@ vector<TrafficInstance> Traffic::initInstance(string file_path) {
   return instances;
 }
 
-/* 讲车辆停靠在对应的车库中去 */
+/* 将车辆停靠在对应的车库中去 */
 void Traffic::portCarsToPort() {
-  for (auto c:cars) {
-    if (c.from_id) {
-      auto the_cross_index = cross_id2index.find(c.from_id);
+  for (auto c = cars.begin(); c != cars.end(); c++) {
+    if (c->from_id) {
+      auto the_cross_index = cross_id2index.find(c->from_id);
       if (the_cross_index != cross_id2index.end()) {
-        crosses[the_cross_index->second].addCar(c);
+        crosses[the_cross_index->second].addCar(&*c);
       }
     }
   }

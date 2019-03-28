@@ -33,10 +33,10 @@ class Car {
      * 2. 如果出发时间相通，则id小者优先级高
      */
     struct cmpAtPort {
-      bool operator () (Car a, Car b) {
+      bool operator () (Car*& a, Car*& b) {
         return !(
-          (a.plan_time < b.plan_time) ||
-          (a.plan_time == b.plan_time && a.id < b.id)
+          (a->plan_time < b->plan_time) ||
+          (a->plan_time == b->plan_time && a->id < b->id)
         );
       }
     };
@@ -69,18 +69,19 @@ class Cross {
     int left_road_id; // 9点方向路口id
 
     // 神奇车库，使用优先队列来实现，出库的时候按照id以及出发时间进行排序出发
-    priority_queue<Car, vector<Car>, Car::cmpAtPort> car_port;
+    priority_queue<Car*, vector<Car*>, Car::cmpAtPort> car_port;
 
     Cross(int id_, int top_road_id_, int right_road_id_, int bottom_road_id_,
         int left_road_id_);
     Cross(string s);
 
     /* 向车库中添加一辆车 */
-    int addCar(const Car& c);
+    int addCar(Car* c);
 };
 
 class Traffic {
   public:
+    // 为了保证全局状态统一，只允许路、路口、车辆的实例存在一份
     vector<Cross> crosses;
     vector<Road> roads;
     vector<Car> cars;

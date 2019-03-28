@@ -23,9 +23,21 @@ Road::Road(string s) {
 /* 车辆驶入道路的逻辑 */
 void Road::addCar(Car* car, int last_cross_id) {
   // 根据车辆驶来的方向来确认要驶入的道路
-  auto* target_channels = last_cross_id == this->from_id
-    ? &s2e_channels : &e2s_channels;
-    // TODO: 处理车辆驶入道路的逻辑
+  auto* target_channels = &s2e_channels;
+  int direction = 1;
+  if (last_cross_id != from_id) {
+    if (!is_duplex) throw "道路不是双向车道！";
+    target_channels = &e2s_channels;
+    direction = -1;
+  }
+  // TODO: 处理车辆驶入道路的逻辑
+  // 1. 判断车道空闲情况，注意调用该函数时，目标车道一定是空闲的，否则将会抛出错误
+  int availableChannelIndex = getAvailableChannelIndex(*target_channels);
+  if (availableChannelIndex < 0) throw "不合法的调度，目标道路无空闲";
+  // 2. 车辆驶入新道路
+  target_channels->at(availableChannelIndex).push(car);
+  // 3. 更改车辆所在道路以及车道
+  car->changeRoad(this, availableChannelIndex, direction);
   target_channels->at(0).push(car);
 }
 
@@ -64,6 +76,74 @@ void Car::updateStatus(int new_status) {
 void Car::changeSpeed(int new_s) {
   if (new_s > max_speed) throw "The new speed cannot larger than max speed!";
   speed = new_s;
+}
+
+void Car::changeRoad(Road* road_, int channel_, int direction) {
+  if (channel_ >= road_->channels_num) throw "Target road channels wrong!";
+  at_road = road_;
+  at_channel_id = channel_;
+  at_channel_direction = direction;
+}
+
+void Car::changePosition(int new_p) {
+  if (new_p > at_road->length) throw "车辆所在位置超出车道限制！";
+  at_road_position = new_p;
+}
+
+/* 车辆往前行驶一个时间单位 */
+void Car::move() {
+  // 有两种情况，一种是车辆在车道内部行驶，另一种是车辆经过路口，进入下一条路
+  // 车辆开始行驶时，必须处于等待行驶状态，行驶过后，变为终止状态
+  if (status != 1) throw "只有处于等待状态的车辆才能行驶！";
+  // 开始判断车辆是否需要驶出路口
+  Car* front_car = getFrontCar();
+
+  int speed = min(max_speed, at_road->max_speed);
+  int could_move_distance = this->at_road_position + speed;
+
+  if (front_car != NULL) {
+    // 存在前车
+    if (front_car->status == 1) {
+      // 前车处于等待行驶状态，则本车保持不动
+      this->updateStatus(1);
+    } else if (front_car->status == 2) {
+      // 前车处于终止状态，则本车向前行驶，并将自身状态设置为终止状态
+      could_move_distance = min(could_move_distance,
+        front_car->at_road_position - this->at_road_position - 1);
+      this->changePosition(this->at_road_position + could_move_distance);
+      this->updateStatus(2); // 车辆移动完毕，处于终止状态
+    } else {
+      throw "道路存在不明情况的前车";
+    }
+  } else {
+    // 不存在前车
+    if (could_move_distance > at_road->length) {
+      // 出道路
+      // 当该车辆要行驶出路口时，将车辆状态设置为等待行驶状态
+      // 因为路口处的规则比较复杂，需要单独进行处理
+      this->updateStatus(1);
+    } else {
+      // 不出道路，直接处理车辆状态即可
+      this->changePosition(this->at_road_position + could_move_distance);
+      this->updateStatus(2);
+    }
+  }
+}
+
+Car* Car::getFrontCar() {
+  auto* channels = at_channel_direction > 0 ?
+    &at_road->s2e_channels : &at_road->e2s_channels;
+  auto* channel = &channels->at(at_channel_id);
+  Car* result;
+  // 如果车辆是车道中最靠前的一辆车，则返回NULL，表示没有前车
+  if (this->id == channel->back()->id) return NULL;
+  // 否则就搜索前车
+  for (auto it = channel->back(); it->id != this->id; it--) {
+    result = it;
+    // 一直搜索到队首，都搜索不到，则报错
+    if (it == channel->front()) throw "车辆状态与所在道路状态不一致，请检查！";;
+  }
+  return result;
 }
 
 Cross::Cross(int id_, int top_road_id_, int right_road_id_, int bottom_road_id_,

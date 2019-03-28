@@ -27,9 +27,11 @@ class Car {
 
     int speed = 0; // 当前速度
 
-    int at_road_id = -1; // 车辆当前所处的道路
+    Road* at_road; // 车辆当前所处的道路
+    int at_channel_direction = 1; // 1-正向，2-反向
     int at_channel_id = -1; // 车辆当前所处的车道
-    int at_road_position = 0; // 车辆在道路中的位置，限制：< road.length
+    int at_road_position = 0;
+    // 车辆在道路中的位置，行驶时限制： 闭区间[1, road.length], 未发车时为0
 
     vector<Road*> path; // 车辆的行驶路径
 
@@ -37,6 +39,11 @@ class Car {
     Car(string s);
     void updateStatus(int);
     void changeSpeed(int);
+    void changeRoad(Road*, int, int);
+    void changePosition(int);
+    void move();
+
+    Car* getFrontCar(); // 获取前车
 
     /* 车辆在车库中出库的优先级
      * 1. 如果出发时间不同，则先出发者优先级高
@@ -47,6 +54,20 @@ class Car {
         return !(
           (a->plan_time < b->plan_time) ||
           (a->plan_time == b->plan_time && a->id < b->id)
+        );
+      }
+    };
+
+    /* 车辆在道路上时的优先级
+     * 1. 对于不同位置的车辆，靠前的先行
+     * 2. 对于相通位置的车辆，车道序号小者先行
+     */
+    struct cmpAtRoad {
+      bool operator () (Car*& a, Car*& b) {
+        return !(
+          (a->at_road_position > b->at_road_position) ||
+          (a->at_road_position == b->at_road_position &&
+            a->at_channel_id < b->at_channel_id)
         );
       }
     };

@@ -26,6 +26,9 @@ Private repo for HUAWEI codecraft 2019 via Team - HuaHuaGuai
 #### 关于车道的需要注意的点
 1. 车道有容量限制，一辆车的长度为1，则长度为L的单车道最多可以容纳L辆车。
 
+### 关于核心代码的运行逻辑
+1. 模拟车辆行驶时，逐车辆进行模拟，即每次调用Car.move()即可。
+
 ### 运行此项目
 #### 安装`google test`依赖库
 `google test`库只会在开发阶段用到，提交代码时并不会用到此库。安装方法：

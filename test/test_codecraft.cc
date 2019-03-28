@@ -13,9 +13,6 @@ public:
     
     traffic.initTraffic(car_path, road_path, cross_path);
   }
-  virtual void TearDown() {
-    cout << "TrafficTestEnv tears down" << endl;
-  }
   Traffic traffic = Traffic();
 };
 
@@ -100,6 +97,19 @@ TEST_F(SimpleTrafficData, test_traffic_buildmapindex) {
   for (int i = 0; i < int(cars.size()); i++) {
     EXPECT_EQ(car_index[cars[i].id], i);
   }
+}
+
+/* 车辆变更速度时的测试 */
+TEST_F(SimpleTrafficData, test_change_car_speed) {
+  auto car = cars[0];
+  car.max_speed = 4;
+  EXPECT_NO_THROW(car.changeSpeed(3));
+  EXPECT_ANY_THROW(car.changeSpeed(5));
+}
+
+TEST_F(SimpleTrafficData, test_road_addcar) {
+  // TODO: 测试车辆驶入逻辑
+  // TODO: 测试getAvailableChannelIndex函数
 }
 
 int main(int argc, char **argv) {

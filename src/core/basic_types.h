@@ -11,6 +11,10 @@
 
 using namespace std;
 
+class Car;
+class Road;
+class Cross;
+
 class Car {
   public:
     int id; // 车辆id
@@ -21,12 +25,18 @@ class Car {
 
     int status = 0; // 0-未出发状态 1-等待行驶状态 2-终止状态
 
+    int speed = 0; // 当前速度
+
     int at_road_id = -1; // 车辆当前所处的道路
     int at_channel_id = -1; // 车辆当前所处的车道
+    int at_road_position = 0; // 车辆在道路中的位置，限制：< road.length
+
+    vector<Road*> path; // 车辆的行驶路径
 
     Car(int id_, int from_id_, int to_id_, int max_speed_, int plan_time_);
     Car(string s);
-    void updateStatus(int new_status);
+    void updateStatus(int);
+    void changeSpeed(int);
 
     /* 车辆在车库中出库的优先级
      * 1. 如果出发时间不同，则先出发者优先级高
@@ -52,12 +62,14 @@ class Road {
     int channels_num; // 车道数目
     bool is_duplex; // 是否双向道路
 
-    vector<vector<int>> s2e_channels; // 正向车道 from_cross -> to_cross
-    vector<vector<int>> e2s_channels; // 反向车道 to_cross -> from_cross
+    vector<queue<Car*>> s2e_channels; // 正向车道 from_cross -> to_cross
+    vector<queue<Car*>> e2s_channels; // 反向车道 to_cross -> from_cross
 
     Road(int id_, int length_, int max_speed_, int from_id_, int to_id_,
         int channels_, bool is_duplex_);
     Road(string s);
+    void addCar(Car*, int);
+    int getAvailableChannelIndex(vector<queue<Car*>>);
 };
 
 class Cross {

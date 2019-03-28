@@ -20,6 +20,26 @@ Road::Road(string s) {
     >> from_id >> to_id >> is_duplex;
 }
 
+/* 车辆驶入道路的逻辑 */
+void Road::addCar(Car* car, int last_cross_id) {
+  // 根据车辆驶来的方向来确认要驶入的道路
+  auto* target_channels = last_cross_id == this->from_id
+    ? &s2e_channels : &e2s_channels;
+    // TODO: 处理车辆驶入道路的逻辑
+  target_channels->at(0).push(car);
+}
+
+/* 获取可用的车道索引 */
+int getAvailableChannelIndex(vector<queue<Car*>>& channels) {
+  int index = 0;
+  for (auto channel = channels.begin(); channel != channels.end(); channel++) {
+    if (channel->back()->at_road_position > 0) {
+      return index;
+    }
+  }
+  return -1;
+}
+
 Car::Car(int id_, int from_id_, int to_id_, int max_speed_, int plan_time_) {
   id = id_;
   from_id = from_id_;
@@ -39,6 +59,11 @@ Car::Car(string s) {
 
 void Car::updateStatus(int new_status) {
   status = new_status;
+}
+
+void Car::changeSpeed(int new_s) {
+  if (new_s > max_speed) throw "The new speed cannot larger than max speed!";
+  speed = new_s;
 }
 
 Cross::Cross(int id_, int top_road_id_, int right_road_id_, int bottom_road_id_,

@@ -127,6 +127,8 @@ class Traffic {
     unordered_map<int, unordered_map<int, double>> id_time_weights; // 每条道路在不同时刻的权重值
 
     void initTraffic(string car_path, string cross_path, string road_path);
+    void initTraffic(vector<Car> cars, vector<Cross> crosses, vector<Road> roads);
+    void buildIndex();
 
     template<class TrafficInstance>
     vector<TrafficInstance> initInstance(string file_path);
@@ -145,6 +147,7 @@ class Traffic {
     double getWeightOfRange(int from_time, int to_time, int road_id);
     double getWeightOf(int, int);
     void setWeightOf(int, int, double);
+    void updateWeightsByPath(Car* car);
 
     Road* getRoadById(int);
     Car* getCarById(int);

@@ -172,10 +172,21 @@ void Traffic::initTraffic(string car_path, string road_path, string cross_path) 
   cars = initInstance<Car>(car_path);
   roads = initInstance<Road>(road_path);
   crosses = initInstance<Cross>(cross_path);
+  buildIndex();
+}
+
+void Traffic::initTraffic(vector<Car> cars_,
+    vector<Cross> crosses_, vector<Road> roads_) {
+  cars = cars_;
+  crosses = crosses_;
+  roads = roads_;
+  buildIndex();
+}
+
+void Traffic::buildIndex() {
   car_id2index = buildMapIndex<Car>(cars);
   road_id2index = buildMapIndex<Road>(roads);
   cross_id2index = buildMapIndex<Cross>(crosses);
-
   portCarsToPort();
 }
 
@@ -222,19 +233,36 @@ void Traffic::portCarsToPort() {
 }
 
 /* 生成车辆的路径规划 */
-void Traffic::getPathOfCar(Car *car) {
+void Traffic::getPathOfCar(Car* car) {
   int t = car->plan_time;
   vector<Road*> S;
+  // TODO: 实现带时间信息的迪杰斯特拉最短路径算法
+}
+
+/* 根据车辆路径更新权重 */
+void Traffic::updateWeightsByPath(Car* car) {
+  if (car->path.empty()) throw "车辆的路径为空！";
+  int t = car->plan_time; // 开始时间
+  for (auto p:car->path) {
+    int speed = min(car->max_speed, p->max_speed);
+    double time_cost = double(p->length) / double(speed);
+    for (int i = 0; i <= time_cost; i++) {
+      t += i;
+      // 道路权重是时间开销/车道数量
+      setWeightOf(t, p->id, time_cost / p->channels_num);
+    }
+  }
 }
 
 /* 获取某条路在某个时间段的平均权重 */
 double Traffic::getWeightOfRange(int from_time, int to_time, int road_id) {
   double w = 0.0;
+  int t = to_time - from_time + 1;
   while (from_time <= to_time) {
     w += getWeightOf(from_time, road_id);
     from_time ++;
   }
-  return w;
+  return t > 0 ? w / t : w;
 }
 
 /* 获取某条路在某个时刻的权重 */

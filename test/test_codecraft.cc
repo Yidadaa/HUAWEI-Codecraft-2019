@@ -33,6 +33,38 @@ public:
   vector<Car> cars;
 };
 
+class ShortestPathTestData : public testing::Test {
+public:
+  virtual void SetUp() {
+    vector<string> test_cars = {
+      "1 1 2 3 1",
+      "2 1 2 3 2",
+      "3 1 2 3 1",
+      "4 1 2 3 2",
+      "5 2 3 3 2"
+    };
+    vector<string> test_roads = {
+      "1 1 1 1 1 2 0",
+      "2 2 1 1 1 3 0",
+      "3 3 1 1 2 3 1",
+      "4 4 1 1 2 4 0",
+      "5 5 1 1 3 4 0"
+    };
+    vector<string> test_crosses = {
+      "1 1 2 -1 -1",
+      "2 4 3 1 -1",
+      "3 3 5 2 -1",
+      "4 4 5 -1 -1"
+    };
+    for (auto s:test_cars) cars.push_back(Car(s));
+    for (auto s:test_roads) roads.push_back(Road(s));
+    for (auto s:test_crosses) crosses.push_back(Cross(s));
+  }
+  vector<Car> cars;
+  vector<Road> roads;
+  vector<Cross> crosses;
+};
+
 TEST_F(TrafficTestEnv, test_traffic) {
   ASSERT_EQ(the_argc, 4) << "Test arguments must be 4";
   EXPECT_EQ(traffic.cars.size(), 128);
@@ -96,7 +128,15 @@ TEST_F(TrafficTestEnv, test_traffic_weights_table) {
     end_time = t + i;
     traffic.setWeightOf(t + i, id, w + i);
   }
-  EXPECT_EQ(traffic.getWeightOfRange(t, end_time, id), sum_w);
+  EXPECT_EQ(
+    traffic.getWeightOfRange(t, end_time, id),
+    sum_w / (end_time - t + 1)
+  );
+}
+
+/* 测试车辆路径权重更新函数 */
+TEST_F(ShortestPathTestData, test_trafic_updateweightsbypath) {
+  // TODO: 添加路径权重更新函数的测试代码
 }
 
 /* 测试神奇车库的出库功能 */

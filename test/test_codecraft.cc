@@ -160,6 +160,12 @@ TEST_F(ShortestPathTestData, test_traffic_getadjroadofcross) {
   }
 }
 
+/* 测试生成的最短路径 */
+TEST_F(ShortestPathTestData, test_traffic_getpathofcar) {
+  traffic.getPathOfCar(&cars[0]);
+  EXPECT_EQ(cars[0].path.size(), 2);
+}
+
 /* 测试神奇车库的出库功能 */
 TEST_F(SimpleTrafficData, test_cross_car_port) {
   auto test_cross = Cross("1 1000 1001 1002 1003");

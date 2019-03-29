@@ -37,7 +37,7 @@ void Road::addCar(Car* car, int last_cross_id) {
   vector<queue<Car*>>* target_channels = &s2e_channels;
   int direction = 1;
   if (last_cross_id != from_id) {
-    if (!is_duplex) throw "道路不是双向车道！";
+    if (!is_duplex) throw runtime_error("道路不是双向车道！");
     target_channels = &e2s_channels;
     direction = -1;
   }
@@ -45,7 +45,8 @@ void Road::addCar(Car* car, int last_cross_id) {
   // 1. 判断车道空闲情况，注意调用该函数时，目标车道一定是空闲的，否则将会抛出错误
   int availableChannelIndex = this->getAvailableChannelIndex(*target_channels);
   // int availableChannelIndex = 0;
-  if (availableChannelIndex < 0) throw "不合法的调度，目标道路无空闲";
+  if (availableChannelIndex < 0)
+    throw runtime_error("不合法的调度，目标道路无空闲");
   // 2. 车辆驶入新道路
   target_channels->at(availableChannelIndex).push(car);
   // 3. 更改车辆所在道路以及车道
@@ -75,19 +76,21 @@ void Car::updateStatus(int new_status) {
 }
 
 void Car::changeSpeed(int new_s) {
-  if (new_s > max_speed) throw "The new speed cannot larger than max speed!";
+  if (new_s > max_speed)
+    throw runtime_error("The new speed cannot larger than max speed!");
   speed = new_s;
 }
 
 void Car::changeRoad(Road* road_, int channel_, int direction) {
-  if (channel_ >= road_->channels_num) throw "Target road channels wrong!";
+  if (channel_ >= road_->channels_num)
+    throw runtime_error("Target road channels wrong!");
   at_road = road_;
   at_channel_id = channel_;
   at_channel_direction = direction;
 }
 
 void Car::changePosition(int new_p) {
-  if (new_p > at_road->length) throw "车辆所在位置超出车道限制！";
+  if (new_p > at_road->length) throw runtime_error("车辆所在位置超出车道限制！");
   at_road_position = new_p;
 }
 
@@ -95,7 +98,7 @@ void Car::changePosition(int new_p) {
 void Car::move() {
   // 有两种情况，一种是车辆在车道内部行驶，另一种是车辆经过路口，进入下一条路
   // 车辆开始行驶时，必须处于等待行驶状态，行驶过后，变为终止状态
-  if (status != 1) throw "只有处于等待状态的车辆才能行驶！";
+  if (status != 1) throw runtime_error("只有处于等待状态的车辆才能行驶！");
   // 开始判断车辆是否需要驶出路口
   Car* front_car = getFrontCar();
 
@@ -114,7 +117,7 @@ void Car::move() {
       this->changePosition(this->at_road_position + could_move_distance);
       this->updateStatus(2); // 车辆移动完毕，处于终止状态
     } else {
-      throw "道路存在不明情况的前车";
+      throw runtime_error("道路存在不明情况的前车");
     }
   } else {
     // 不存在前车
@@ -142,7 +145,8 @@ Car* Car::getFrontCar() {
   for (auto it = channel->back(); it->id != this->id; it--) {
     result = it;
     // 一直搜索到队首，都搜索不到，则报错
-    if (it == channel->front()) throw "车辆状态与所在道路状态不一致，请检查！";;
+    if (it == channel->front())
+      throw runtime_error("车辆状态与所在道路状态不一致，请检查！");
   }
   return result;
 }
@@ -288,13 +292,15 @@ void Traffic::getPathOfCar(Car* car) {
         v->t = u->t + d_t;
       }
     }
-    if (last_q_size == Q.size()) throw "路径生成失败！";
+    if (last_q_size == int(Q.size())) {
+      throw runtime_error("路径生成失败！");
+    };
     last_q_size = Q.size();
   }
   // 3. 此时S中所有点的权重均已更新完毕，生成对应的路径
   vector<Road*> path;
   auto target_cross = S.find(car->to_id);
-  if (target_cross == S.end()) throw "路径生成错误！";
+  if (target_cross == S.end()) throw runtime_error("路径生成错误！");
   CrossD* the_crossd = target_cross->second;
   while (the_crossd->prior_crossd != NULL) {
     path.push_back(the_crossd->road);
@@ -306,7 +312,7 @@ void Traffic::getPathOfCar(Car* car) {
 
 /* 根据车辆路径更新权重 */
 void Traffic::updateWeightsByPath(Car* car) {
-  if (car->path.empty()) throw "车辆的路径为空！";
+  if (car->path.empty()) throw runtime_error("车辆的路径为空！");
   int t = car->plan_time; // 开始时间
   for (auto p:car->path) {
     double time_cost = getTimeCostOf(car, p);

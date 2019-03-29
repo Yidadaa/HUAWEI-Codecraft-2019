@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
+#include <math.h>
 
 #if !defined(CORE_BASIC_TYPES_H_)
 #define CORE_BASIC_TYPES_H_

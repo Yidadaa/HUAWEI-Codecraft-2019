@@ -243,13 +243,16 @@ void Traffic::getPathOfCar(Car* car) {
 void Traffic::updateWeightsByPath(Car* car) {
   if (car->path.empty()) throw "车辆的路径为空！";
   int t = car->plan_time; // 开始时间
+  cout << "path's size: " << car->path.size() << endl;
   for (auto p:car->path) {
     int speed = min(car->max_speed, p->max_speed);
-    double time_cost = double(p->length) / double(speed);
-    for (int i = 0; i <= time_cost; i++) {
-      t += i;
+    double time_cost = ceil(double(p->length) / double(speed));
+    for (int i = 0; i < time_cost; i++) {
+      t += 1;
       // 道路权重是时间开销/车道数量
-      setWeightOf(t, p->id, time_cost / p->channels_num);
+      double w = time_cost / p->channels_num;
+      setWeightOf(t, p->id, w);
+      cout << "path: " << t << " " << p->id << " " << w << endl;
     }
   }
 }

@@ -279,10 +279,10 @@ void Traffic::getPathOfCar(Car* car) {
     // 遍历u的邻居结点，松弛对应的值
     for (auto it = adjs.begin(); it != adjs.end(); it++) {
       // 首先剔除掉已经在S中的结点
-      cout << u->cross->id << ' ' << (*it)->from_id << endl;
+      // cout << u->cross->id << ' ' << (*it)->from_id << endl;
       if(S.find((*it)->from_id) != S.end() &&
         S.find((*it)->to_id) != S.end()) continue;
-      cout << "re: " << u->cross->id << ' ' << (*it)->from_id << endl;
+      // cout << "re: " << u->cross->id << ' ' << (*it)->from_id << endl;
       // 然后剔除不支持逆行的路口，即出发点不是u，并且不是双通路
       if((*it)->from_id != u->cross->id && !(*it)->is_duplex) continue;
       // 然后对剩下的路口进行计算
@@ -314,7 +314,6 @@ void Traffic::getPathOfCar(Car* car) {
     path.push_back(the_crossd->road);
     the_crossd = the_crossd->prior_crossd;
   }
-  cout << path.size() << endl;
   reverse(path.begin(), path.end());
   car->path = path; // 更新车辆的路径
   updateWeightsByPath(car);

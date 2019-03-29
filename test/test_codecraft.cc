@@ -110,21 +110,21 @@ TEST_F(TrafficTestEnv, test_traffic) {
 }
 
 /* 测试交通图的权重存取功能 */
-TEST_F(TrafficTestEnv, test_traffic_weights_table) {
+TEST_F(ShortestPathTestData, test_traffic_weights_table) {
   const int t = 42;
-  const int id = 42;
+  const int id = 1;
   const double w = 1.0;
   traffic.setWeightOf(t, id, w);
-  EXPECT_EQ(traffic.getWeightOf(t, id), w);
-  EXPECT_EQ(traffic.getWeightOf(t + 1, id), 0.0);
-  EXPECT_EQ(traffic.getWeightOf(t, id + 1), 0.0);
+  EXPECT_EQ(traffic.getWeightOf(t, id), w + traffic.getRoadById(id)->length);
+  EXPECT_EQ(traffic.getWeightOf(t + 1, id), traffic.getRoadById(id)->length);
+  EXPECT_EQ(traffic.getWeightOf(t, id + 1), traffic.getRoadById(id + 1)->length);
 
-  double sum_w = w;
+  double sum_w = traffic.getWeightOf(t, id);
   int end_time = t;
-  for (int i = 1; i < 5; i++) {
-    sum_w += w + i;
+  for (int i = 1; i < 3; i++) {
     end_time = t + i;
     traffic.setWeightOf(t + i, id, w + i);
+    sum_w += traffic.getWeightOf(t + i, id);
   }
   EXPECT_EQ(
     traffic.getWeightOfRange(t, end_time, id),
@@ -140,8 +140,10 @@ TEST_F(ShortestPathTestData, test_trafic_updateweightsbypath) {
   EXPECT_EQ(the_car.to_id, the_car.path[the_car.path.size() - 1]->to_id);
   // 测试权重更新函数
   traffic.updateWeightsByPath(&the_car);
-  EXPECT_EQ(traffic.getWeightOfRange(1, 3, 1), 1.0 / 3);
-  EXPECT_EQ(traffic.getWeightOfRange(3, 6, 4), 16.0 / 4);
+  EXPECT_EQ(traffic.getWeightOfRange(1, 3, 1),
+    1.0 / 3 + traffic.getRoadById(1)->length);
+  EXPECT_EQ(traffic.getWeightOfRange(3, 6, 4),
+    16.0 / 4 + traffic.getRoadById(4)->length);
 }
 
 /* 测试获取路口相邻路段的函数 */
@@ -165,7 +167,7 @@ TEST_F(ShortestPathTestData, test_traffic_getpathofcar) {
   traffic.getPathOfCar(&cars[0]);
   EXPECT_EQ(cars[0].path.size(), 2);
   int ids[] = { 1, 4 };
-  for (int i = 0; i < cars[0].path.size(); i++) {
+  for (int i = 0; i < int(cars[0].path.size()); i++) {
     EXPECT_EQ(cars[0].path[i]->id, ids[i]);
   }
 }

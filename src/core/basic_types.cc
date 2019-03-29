@@ -236,9 +236,14 @@ void Traffic::portCarsToPort() {
 void Traffic::getPathOfCar(Car* car) {
   struct CrossD {
     Cross* cross = NULL;
-    Cross* prior_cross = NULL;
+    CrossD* prior_crossd = NULL;
+    Road* road = NULL;
     double min_d = __DBL_MAX__;
     int t;
+  };
+  // 定义比较函数
+  auto cmp = [](CrossD a, CrossD b) {
+    return a.min_d < b.min_d;
   };
   vector<CrossD> G;
   unordered_map<int, CrossD*> S;
@@ -251,18 +256,52 @@ void Traffic::getPathOfCar(Car* car) {
     if (it->id == car->from_id) {
       c_d.min_d = 0;
     }
-    G[it->id] = c_d;
-    Q[it->id] = &G[it->id];
+    G.push_back(c_d);
+    Q[it->id] = &*G.end();
   }
   // 2. 开始处理
+  int last_q_size = Q.size(); // 判断死锁
   while (!Q.empty()) {
-    // auto u = min_element(G.begin(), G.end());
-    // Q.erase(u->cross->id);
-    // S[u->cross->id] = &*u;
-    
+    auto u = min_element(G.begin(), G.end(), cmp);
+    Q.erase(u->cross->id);
+    S[u->cross->id] = &*u;
+    vector<Road*> adjs = getAdjRoadOfCross(u->cross);
+    // 遍历u的邻居结点，松弛对应的值
+    for (auto it = adjs.begin(); it != adjs.end(); it++) {
+      // 首先剔除掉已经在S中的结点
+      if(S.find((*it)->from_id) != S.end() ||
+        S.find((*it)->to_id) != S.end()) continue;
+      // 然后剔除不支持逆行的路口，即出发点不是u，并且不是双通路
+      if((*it)->from_id != u->cross->id && !(*it)->is_duplex) continue;
+      // 然后对剩下的路口进行计算
+      int d_t = getTimeCostOf(car, *it);
+      double new_d = u->min_d + getWeightOfRange(u->t, u->t + d_t, (*it)->id);
+      // 找到该路口对应的目标节点
+      int target_cross_id = (*it)->from_id != u->cross->id ?
+        (*it)->from_id : (*it)->to_id;
+      CrossD* v = Q[target_cross_id];
+      // 如果新的权重值小于目标节点权重值，则更新对应权重
+      if (new_d < v->min_d) {
+        v->min_d = new_d;
+        v->prior_crossd = &*u;
+        v->road = *it;
+        v->t = u->t + d_t;
+      }
+    }
+    if (last_q_size == Q.size()) throw "路径生成失败！";
+    last_q_size = Q.size();
   }
-
-  // TODO: 实现带时间信息的迪杰斯特拉最短路径算法
+  // 3. 此时S中所有点的权重均已更新完毕，生成对应的路径
+  vector<Road*> path;
+  auto target_cross = S.find(car->to_id);
+  if (target_cross == S.end()) throw "路径生成错误！";
+  CrossD* the_crossd = target_cross->second;
+  while (the_crossd->prior_crossd != NULL) {
+    path.push_back(the_crossd->road);
+  }
+  reverse(path.begin(), path.end());
+  car->path = path; // 更新车辆的路径
+  updateWeightsByPath(car);
 }
 
 /* 根据车辆路径更新权重 */

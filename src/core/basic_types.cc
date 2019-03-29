@@ -245,29 +245,35 @@ void Traffic::getPathOfCar(Car* car) {
     double min_d = __DBL_MAX__;
     int t;
   };
-  // 定义比较函数
-  auto cmp = [](CrossD a, CrossD b) {
-    return a.min_d < b.min_d;
-  };
-  vector<CrossD> G;
+  vector<CrossD> G(int(crosses.size()), CrossD());
+  // CrossD[crosses.size()] G;
   unordered_map<int, CrossD*> S;
   unordered_map<int, CrossD*> Q;
+  // 定义比较函数
+  auto cmp = [Q](pair<const int, CrossD*> a, pair<const int, CrossD*> b) {
+    return a.second->min_d < b.second->min_d;
+  };
   // 1. 初始化列表
-  for (auto it = crosses.begin(); it != crosses.end(); it++) {
-    struct CrossD c_d;
-    c_d.cross = &*it;
-    c_d.t = car->plan_time;
-    if (it->id == car->from_id) {
-      c_d.min_d = 0;
+  for (int i = 0; i < crosses.size(); i++) {
+    G[i].cross = &crosses[i];
+    G[i].t = car->plan_time;
+    if (crosses[i].id == car->from_id) {
+      G[i].min_d = 0;
     }
-    G.push_back(c_d);
-    Q[it->id] = &*G.end();
+    Q[crosses[i].id] = &G[i];
   }
+  // for (auto g:G) cout << g.cross->id << endl;
+  // for (auto iter = Q.begin(); iter != Q.end(); iter++)
+  // {
+  // cout << iter->first << iter->second->cross->id << Q[iter->first]->cross->id << endl;
+  // }
   // 2. 开始处理
   int last_q_size = Q.size(); // 判断死锁
   while (!Q.empty()) {
-    auto u = min_element(G.begin(), G.end(), cmp);
-    Q.erase(u->cross->id);
+    auto min_iter = min_element(Q.begin(), Q.end(), cmp);
+    auto u = min_iter->second;
+    // cout << min_iter->first << endl;
+    Q.erase(min_iter->first);
     S[u->cross->id] = &*u;
     vector<Road*> adjs = getAdjRoadOfCross(u->cross);
     // 遍历u的邻居结点，松弛对应的值
@@ -304,6 +310,10 @@ void Traffic::getPathOfCar(Car* car) {
   CrossD* the_crossd = target_cross->second;
   while (the_crossd->prior_crossd != NULL) {
     path.push_back(the_crossd->road);
+  }
+  cout << path.size() << endl;
+  for (auto s = S.begin(); s != S.end(); s++) {
+    cout << s->second->prior_crossd << endl;
   }
   reverse(path.begin(), path.end());
   car->path = path; // 更新车辆的路径

@@ -88,6 +88,15 @@ TEST_F(TrafficTestEnv, test_traffic_weights_table) {
   EXPECT_EQ(traffic.getWeightOf(t, id), w);
   EXPECT_EQ(traffic.getWeightOf(t + 1, id), 0.0);
   EXPECT_EQ(traffic.getWeightOf(t, id + 1), 0.0);
+
+  double sum_w = w;
+  int end_time = t;
+  for (int i = 1; i < 5; i++) {
+    sum_w += w + i;
+    end_time = t + i;
+    traffic.setWeightOf(t + i, id, w + i);
+  }
+  EXPECT_EQ(traffic.getWeightOfRange(t, end_time, id), sum_w);
 }
 
 /* 测试神奇车库的出库功能 */

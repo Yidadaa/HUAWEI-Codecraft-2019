@@ -142,7 +142,7 @@ class Traffic {
 
     void portCarsToPort();
     void getPathOfCar(Car*);
-    double getWeightOfRange(int, int, int);
+    double getWeightOfRange(int from_time, int to_time, int road_id);
     double getWeightOf(int, int);
     void setWeightOf(int, int, double);
 

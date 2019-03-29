@@ -101,6 +101,8 @@ class Cross {
     int bottom_road_id; // 6点方向路口id
     int left_road_id; // 9点方向路口id
 
+    int min_d = -1; // 最短路径算法中的最小值
+
     // 神奇车库，使用优先队列来实现，出库的时候按照id以及出发时间进行排序出发
     priority_queue<Car*, vector<Car*>, Car::cmpAtPort> car_port;
 
@@ -122,6 +124,7 @@ class Traffic {
     unordered_map<int, int> car_id2index;
     unordered_map<int, int> road_id2index;
     unordered_map<int, int> cross_id2index;
+    unordered_map<int, unordered_map<int, double>> id_time_weights; // 每条道路在不同时刻的权重值
 
     void initTraffic(string car_path, string cross_path, string road_path);
 
@@ -138,6 +141,14 @@ class Traffic {
     };
 
     void portCarsToPort();
+    void getPathOfCar(Car*);
+    double getWeightOfRange(int, int, int);
+    double getWeightOf(int, int);
+    void setWeightOf(int, int, double);
+
+    Road* getRoadById(int);
+    Car* getCarById(int);
+    Cross* getCrossById(int);
 };
 
 #endif // CORE_BASI_CTYPES_H_

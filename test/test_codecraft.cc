@@ -39,28 +39,37 @@ TEST_F(TrafficTestEnv, test_traffic) {
   EXPECT_EQ(traffic.roads.size(), 60);
   EXPECT_EQ(traffic.crosses.size(), 36);
 
+  auto* the_car = &traffic.cars[0];
   /* Test Car */
-  EXPECT_EQ(traffic.cars[0].id, 10000);
-  EXPECT_EQ(traffic.cars[0].from_id, 15);
-  EXPECT_EQ(traffic.cars[0].to_id, 35);
-  EXPECT_EQ(traffic.cars[0].max_speed, 6);
-  EXPECT_EQ(traffic.cars[0].plan_time, 1);
+  EXPECT_EQ((*the_car).id, 10000);
+  EXPECT_EQ((*the_car).from_id, 15);
+  EXPECT_EQ((*the_car).to_id, 35);
+  EXPECT_EQ((*the_car).max_speed, 6);
+  EXPECT_EQ((*the_car).plan_time, 1);
 
+  EXPECT_EQ(traffic.getCarById(the_car->id)->id, the_car->id);
+
+  auto the_road = traffic.roads[0];
   /* Test Road */
-  EXPECT_EQ(traffic.roads[0].id, 5000);
-  EXPECT_EQ(traffic.roads[0].length, 10);
-  EXPECT_EQ(traffic.roads[0].max_speed, 5);
-  EXPECT_EQ(traffic.roads[0].channels_num, 1);
-  EXPECT_EQ(traffic.roads[0].from_id, 1);
-  EXPECT_EQ(traffic.roads[0].to_id, 2);
-  EXPECT_EQ(traffic.roads[0].is_duplex, 1);
+  EXPECT_EQ(the_road.id, 5000);
+  EXPECT_EQ(the_road.length, 10);
+  EXPECT_EQ(the_road.max_speed, 5);
+  EXPECT_EQ(the_road.channels_num, 1);
+  EXPECT_EQ(the_road.from_id, 1);
+  EXPECT_EQ(the_road.to_id, 2);
+  EXPECT_EQ(the_road.is_duplex, 1);
 
+  EXPECT_EQ(traffic.getRoadById(the_road.id)->id, the_road.id);
+
+  auto the_cross = traffic.crosses[0];
   /* Test Cross */
-  EXPECT_EQ(traffic.crosses[0].id, 1);
-  EXPECT_EQ(traffic.crosses[0].top_road_id, 5000);
-  EXPECT_EQ(traffic.crosses[0].right_road_id, 5005);
-  EXPECT_EQ(traffic.crosses[0].bottom_road_id, -1);
-  EXPECT_EQ(traffic.crosses[0].left_road_id, -1);
+  EXPECT_EQ(the_cross.id, 1);
+  EXPECT_EQ(the_cross.top_road_id, 5000);
+  EXPECT_EQ(the_cross.right_road_id, 5005);
+  EXPECT_EQ(the_cross.bottom_road_id, -1);
+  EXPECT_EQ(the_cross.left_road_id, -1);
+
+  EXPECT_EQ(traffic.getCrossById(the_cross.id)->id, the_cross.id);
 
   /* 测试车辆是否正确地停到车库中 */
   int s = 0;
@@ -68,6 +77,17 @@ TEST_F(TrafficTestEnv, test_traffic) {
     s += cross.car_port.size();
   }
   EXPECT_EQ(s, traffic.cars.size());
+}
+
+/* 测试交通图的权重存取功能 */
+TEST_F(TrafficTestEnv, test_traffic_weights_table) {
+  const int t = 42;
+  const int id = 42;
+  const double w = 1.0;
+  traffic.setWeightOf(t, id, w);
+  EXPECT_EQ(traffic.getWeightOf(t, id), w);
+  EXPECT_EQ(traffic.getWeightOf(t + 1, id), 0.0);
+  EXPECT_EQ(traffic.getWeightOf(t, id + 1), 0.0);
 }
 
 /* 测试神奇车库的出库功能 */

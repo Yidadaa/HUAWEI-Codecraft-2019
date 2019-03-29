@@ -220,3 +220,71 @@ void Traffic::portCarsToPort() {
     }
   }
 }
+
+/* 生成车辆的路径规划 */
+void Traffic::getPathOfCar(Car *car) {
+  int t = car->plan_time;
+  vector<Road*> S;
+}
+
+/* 获取某条路在某个时间段的平均权重 */
+double Traffic::getWeightOfRange(int from_time, int to_time, int road_id) {
+  double w = 0.0;
+  while (from_time <= to_time) {
+    w += getWeightOf(from_time, road_id);
+    from_time ++;
+  }
+  return w;
+}
+
+/* 获取某条路在某个时刻的权重 */
+double Traffic::getWeightOf(int t, int road_id) {
+  auto t_weights = id_time_weights.find(t);
+  if (t_weights != id_time_weights.end()) {
+    auto id_weights = t_weights->second.find(road_id);
+    if (id_weights != t_weights->second.end()) {
+      return id_weights->second;
+    }
+  }
+  return 0.0;
+}
+
+/* 设置某条路在某个时刻的权重 */
+void Traffic::setWeightOf(int t, int road_id, double w) {
+  auto t_weights = id_time_weights.find(t);
+  if (t_weights != id_time_weights.end()) {
+    auto id_weights = t_weights->second.find(road_id);
+    if (id_weights != t_weights->second.end()) {
+      id_weights->second += w;
+    }
+  }
+  id_time_weights[t][road_id] = w;
+}
+
+/* 根据id获取路 */
+Road* Traffic::getRoadById(int road_id) {
+  auto index = road_id2index.find(road_id);
+  if (index == road_id2index.end() ||
+    index->second >= int(roads.size())) return NULL;
+  return &roads.at(index->second);
+}
+
+/* 根据id获取车 */
+Car* Traffic::getCarById(int car_id) {
+  auto index = car_id2index.find(car_id);
+  if (index == car_id2index.end() ||
+      index->second >= int(cars.size())) {
+    return NULL;
+  };
+  return &cars.at(index->second);
+}
+
+/* 根据id获取路口 */
+Cross* Traffic::getCrossById(int cross_id) {
+  auto index = cross_id2index.find(cross_id);
+  if (index == cross_id2index.end() ||
+    index->second >= int(crosses.size())) {
+    return NULL;
+  }
+  return &crosses.at(index->second);
+}

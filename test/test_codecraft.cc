@@ -144,6 +144,22 @@ TEST_F(ShortestPathTestData, test_trafic_updateweightsbypath) {
   EXPECT_EQ(traffic.getWeightOfRange(3, 6, 4), 16.0 / 4);
 }
 
+/* 测试获取路口相邻路段的函数 */
+TEST_F(ShortestPathTestData, test_traffic_getadjroadofcross) {
+  vector<Road*> rs;
+  auto* cross = &crosses[0];
+  rs = traffic.getAdjRoadOfCross(cross);
+  int ids[] = {
+    cross->top_road_id,
+    cross->right_road_id,
+    cross->bottom_road_id,
+    cross->left_road_id
+  };
+  for (int i = 0; i < int(rs.size()); ++i) {
+    EXPECT_EQ(rs[i]->id, ids[i]);
+  }
+}
+
 /* 测试神奇车库的出库功能 */
 TEST_F(SimpleTrafficData, test_cross_car_port) {
   auto test_cross = Cross("1 1000 1001 1002 1003");

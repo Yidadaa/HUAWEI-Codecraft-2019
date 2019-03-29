@@ -234,8 +234,34 @@ void Traffic::portCarsToPort() {
 
 /* 生成车辆的路径规划 */
 void Traffic::getPathOfCar(Car* car) {
-  int t = car->plan_time;
-  vector<Road*> S;
+  struct CrossD {
+    Cross* cross = NULL;
+    Cross* prior_cross = NULL;
+    double min_d = __DBL_MAX__;
+    int t;
+  };
+  vector<CrossD> G;
+  unordered_map<int, CrossD*> S;
+  unordered_map<int, CrossD*> Q;
+  // 1. 初始化列表
+  for (auto it = crosses.begin(); it != crosses.end(); it++) {
+    struct CrossD c_d;
+    c_d.cross = &*it;
+    c_d.t = car->plan_time;
+    if (it->id == car->from_id) {
+      c_d.min_d = 0;
+    }
+    G[it->id] = c_d;
+    Q[it->id] = &G[it->id];
+  }
+  // 2. 开始处理
+  while (!Q.empty()) {
+    // auto u = min_element(G.begin(), G.end());
+    // Q.erase(u->cross->id);
+    // S[u->cross->id] = &*u;
+    
+  }
+
   // TODO: 实现带时间信息的迪杰斯特拉最短路径算法
 }
 
@@ -243,16 +269,13 @@ void Traffic::getPathOfCar(Car* car) {
 void Traffic::updateWeightsByPath(Car* car) {
   if (car->path.empty()) throw "车辆的路径为空！";
   int t = car->plan_time; // 开始时间
-  cout << "path's size: " << car->path.size() << endl;
   for (auto p:car->path) {
-    int speed = min(car->max_speed, p->max_speed);
-    double time_cost = ceil(double(p->length) / double(speed));
+    double time_cost = getTimeCostOf(car, p);
     for (int i = 0; i < time_cost; i++) {
       t += 1;
       // 道路权重是时间开销/车道数量
       double w = time_cost / p->channels_num;
       setWeightOf(t, p->id, w);
-      cout << "path: " << t << " " << p->id << " " << w << endl;
     }
   }
 }
@@ -318,4 +341,29 @@ Cross* Traffic::getCrossById(int cross_id) {
     return NULL;
   }
   return &crosses.at(index->second);
+}
+
+int Traffic::getSpeedOf(Car* car, Road* road) {
+  return min(car->max_speed, road->max_speed);
+}
+
+int Traffic::getTimeCostOf(Car* car, Road* road) {
+  int speed = getSpeedOf(car, road);
+  return ceil(double(road->length) / double(speed));
+}
+
+vector<Road*> Traffic::getAdjRoadOfCross(Cross* cross) {
+  vector<Road*> result;
+  int ids[] = {
+    cross->top_road_id,
+    cross->right_road_id,
+    cross->bottom_road_id,
+    cross->left_road_id
+  };
+  for (int i = 0; i < 4; ++i) {
+    if (ids[i] > -1) {
+      result.push_back(getRoadById(ids[i]));
+    }
+  }
+  return result;
 }

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <math.h>
+#include <algorithm>
 
 #if !defined(CORE_BASIC_TYPES_H_)
 #define CORE_BASIC_TYPES_H_
@@ -102,8 +103,6 @@ class Cross {
     int bottom_road_id; // 6点方向路口id
     int left_road_id; // 9点方向路口id
 
-    int min_d = -1; // 最短路径算法中的最小值
-
     // 神奇车库，使用优先队列来实现，出库的时候按照id以及出发时间进行排序出发
     priority_queue<Car*, vector<Car*>, Car::cmpAtPort> car_port;
 
@@ -113,6 +112,8 @@ class Cross {
 
     /* 向车库中添加一辆车 */
     int addCar(Car* c);
+    // 重置结点
+    void resetNode();
 };
 
 class Traffic {
@@ -149,6 +150,9 @@ class Traffic {
     double getWeightOf(int, int);
     void setWeightOf(int, int, double);
     void updateWeightsByPath(Car* car);
+    int getSpeedOf(Car* car, Road* road);
+    int getTimeCostOf(Car* car, Road* road);
+    vector<Road*> getAdjRoadOfCross(Cross* cross);
 
     Road* getRoadById(int);
     Car* getCarById(int);

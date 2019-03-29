@@ -20,10 +20,21 @@ Road::Road(string s) {
     >> from_id >> to_id >> is_duplex;
 }
 
+/* 获取可用的车道索引 */
+int Road::getAvailableChannelIndex(vector<queue<Car*>> channels) {
+  int index = 0;
+  for (auto channel = channels.begin(); channel != channels.end(); channel++) {
+    if (channel->back()->at_road_position > 0) {
+      return index;
+    }
+  }
+  return -1;
+}
+
 /* 车辆驶入道路的逻辑 */
 void Road::addCar(Car* car, int last_cross_id) {
   // 根据车辆驶来的方向来确认要驶入的道路
-  auto* target_channels = &s2e_channels;
+  vector<queue<Car*>>* target_channels = &s2e_channels;
   int direction = 1;
   if (last_cross_id != from_id) {
     if (!is_duplex) throw "道路不是双向车道！";
@@ -32,24 +43,14 @@ void Road::addCar(Car* car, int last_cross_id) {
   }
   // TODO: 处理车辆驶入道路的逻辑
   // 1. 判断车道空闲情况，注意调用该函数时，目标车道一定是空闲的，否则将会抛出错误
-  int availableChannelIndex = getAvailableChannelIndex(*target_channels);
+  int availableChannelIndex = this->getAvailableChannelIndex(*target_channels);
+  // int availableChannelIndex = 0;
   if (availableChannelIndex < 0) throw "不合法的调度，目标道路无空闲";
   // 2. 车辆驶入新道路
   target_channels->at(availableChannelIndex).push(car);
   // 3. 更改车辆所在道路以及车道
   car->changeRoad(this, availableChannelIndex, direction);
   target_channels->at(0).push(car);
-}
-
-/* 获取可用的车道索引 */
-int getAvailableChannelIndex(vector<queue<Car*>>& channels) {
-  int index = 0;
-  for (auto channel = channels.begin(); channel != channels.end(); channel++) {
-    if (channel->back()->at_road_position > 0) {
-      return index;
-    }
-  }
-  return -1;
 }
 
 Car::Car(int id_, int from_id_, int to_id_, int max_speed_, int plan_time_) {

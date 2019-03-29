@@ -89,8 +89,8 @@ class Road {
     Road(int id_, int length_, int max_speed_, int from_id_, int to_id_,
         int channels_, bool is_duplex_);
     Road(string s);
-    void addCar(Car*, int);
     int getAvailableChannelIndex(vector<queue<Car*>>);
+    void addCar(Car*, int);
 };
 
 class Cross {

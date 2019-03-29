@@ -164,6 +164,10 @@ TEST_F(ShortestPathTestData, test_traffic_getadjroadofcross) {
 TEST_F(ShortestPathTestData, test_traffic_getpathofcar) {
   traffic.getPathOfCar(&cars[0]);
   EXPECT_EQ(cars[0].path.size(), 2);
+  int ids[] = { 1, 4 };
+  for (int i = 0; i < cars[0].path.size(); i++) {
+    EXPECT_EQ(cars[0].path[i]->id, ids[i]);
+  }
 }
 
 /* 测试神奇车库的出库功能 */

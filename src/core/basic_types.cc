@@ -254,7 +254,7 @@ void Traffic::getPathOfCar(Car* car) {
     return a.second->min_d < b.second->min_d;
   };
   // 1. 初始化列表
-  for (int i = 0; i < crosses.size(); i++) {
+  for (int i = 0; i < int(crosses.size()); i++) {
     G[i].cross = &crosses[i];
     G[i].t = car->plan_time;
     if (crosses[i].id == car->from_id) {
@@ -279,8 +279,10 @@ void Traffic::getPathOfCar(Car* car) {
     // 遍历u的邻居结点，松弛对应的值
     for (auto it = adjs.begin(); it != adjs.end(); it++) {
       // 首先剔除掉已经在S中的结点
-      if(S.find((*it)->from_id) != S.end() ||
+      cout << u->cross->id << ' ' << (*it)->from_id << endl;
+      if(S.find((*it)->from_id) != S.end() &&
         S.find((*it)->to_id) != S.end()) continue;
+      cout << "re: " << u->cross->id << ' ' << (*it)->from_id << endl;
       // 然后剔除不支持逆行的路口，即出发点不是u，并且不是双通路
       if((*it)->from_id != u->cross->id && !(*it)->is_duplex) continue;
       // 然后对剩下的路口进行计算
@@ -310,11 +312,9 @@ void Traffic::getPathOfCar(Car* car) {
   CrossD* the_crossd = target_cross->second;
   while (the_crossd->prior_crossd != NULL) {
     path.push_back(the_crossd->road);
+    the_crossd = the_crossd->prior_crossd;
   }
   cout << path.size() << endl;
-  for (auto s = S.begin(); s != S.end(); s++) {
-    cout << s->second->prior_crossd << endl;
-  }
   reverse(path.begin(), path.end());
   car->path = path; // 更新车辆的路径
   updateWeightsByPath(car);
@@ -355,7 +355,8 @@ double Traffic::getWeightOf(int t, int road_id) {
       return id_weights->second;
     }
   }
-  return 0.0;
+  Road* r = getRoadById(road_id);
+  return r->length;
 }
 
 /* 设置某条路在某个时刻的权重 */
@@ -367,14 +368,14 @@ void Traffic::setWeightOf(int t, int road_id, double w) {
       id_weights->second += w;
     }
   }
-  id_time_weights[t][road_id] = w;
+  id_time_weights[t][road_id] = w + getWeightOf(t, road_id);
 }
 
 /* 根据id获取路 */
 Road* Traffic::getRoadById(int road_id) {
   auto index = road_id2index.find(road_id);
   if (index == road_id2index.end() ||
-    index->second >= int(roads.size())) return NULL;
+    index->second >= int(roads.size())) throw runtime_error("查询路出错！");
   return &roads.at(index->second);
 }
 
@@ -383,7 +384,7 @@ Car* Traffic::getCarById(int car_id) {
   auto index = car_id2index.find(car_id);
   if (index == car_id2index.end() ||
       index->second >= int(cars.size())) {
-    return NULL;
+    throw runtime_error("查询车辆出错！");
   };
   return &cars.at(index->second);
 }
@@ -393,7 +394,7 @@ Cross* Traffic::getCrossById(int cross_id) {
   auto index = cross_id2index.find(cross_id);
   if (index == cross_id2index.end() ||
     index->second >= int(crosses.size())) {
-    return NULL;
+    throw runtime_error("查询路口出错！");
   }
   return &crosses.at(index->second);
 }

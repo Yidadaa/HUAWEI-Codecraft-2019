@@ -192,6 +192,15 @@ void Traffic::buildIndex() {
   road_id2index = buildMapIndex<Road>(roads);
   cross_id2index = buildMapIndex<Cross>(crosses);
   portCarsToPort();
+  computeAvglen();
+}
+
+void Traffic::computeAvglen() {
+  int s = 0;
+  for (auto r:roads) {
+    s += r.length;
+  }
+  avg_len = s / roads.size();
 }
 
 template<class TrafficInstance>
@@ -425,7 +434,16 @@ vector<Road*> Traffic::getAdjRoadOfCross(Cross* cross) {
 
 vector<string> Traffic::path2string() {
   vector<string> result;
+  int i = 0;
+  int d_t = 1;
   for (auto it = cars.begin(); it != cars.end(); it++) {
+    if (i >= avg_len * 1.2) {
+      d_t += 1;
+      i = 0;
+    }
+
+    it->plan_time += d_t;
+
     stringstream tmp;
     tmp << "(" << it->id << ", " << it->plan_time << ", ";
     int N = it->path.size();
@@ -437,6 +455,7 @@ vector<string> Traffic::path2string() {
     }
     tmp << ")";
     result.push_back(tmp.str());
+    i++;
   }
   return result;
 }
@@ -451,5 +470,15 @@ void Traffic::getAllCarPath() {
   for (auto it = cars.begin(); it != cars.end(); it++) {
     getPathOfCar(&*it);
     updateWeightsByPath(&*it);
+  }
+  checkPath();
+}
+
+void Traffic::checkPath() {
+  for (auto it:cars) {
+    auto last_road = it.path[it.path.size() - 1];
+    if (last_road->to_id != it.to_id && last_road->from_id != it.to_id) {
+      throw runtime_error("路径生成失败！");
+    }
   }
 }

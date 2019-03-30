@@ -124,6 +124,8 @@ class Traffic {
     vector<Road> roads;
     vector<Car> cars;
 
+    int avg_len;
+
     unordered_map<int, int> car_id2index;
     unordered_map<int, int> road_id2index;
     unordered_map<int, int> cross_id2index;
@@ -161,6 +163,9 @@ class Traffic {
     Cross* getCrossById(int);
 
     vector<string> path2string();
+    void checkPath();
+
+    void computeAvglen();
 };
 
 #endif // CORE_BASI_CTYPES_H_

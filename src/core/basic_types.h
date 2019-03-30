@@ -150,9 +150,9 @@ class Traffic {
     void portCarsToPort();
     void getPathOfCar(Car*);
     void getAllCarPath();
-    double getWeightOfRange(int from_time, int to_time, int road_id);
-    double getWeightOf(int, int);
-    void setWeightOf(int, int, double);
+    double getWeightOfRange(int from_time, int to_time, int road_id, Car* car);
+    double getWeightOf(int, int, Car* car);
+    void setWeightOf(int, int, double, Car*);
     void updateWeightsByPath(Car* car);
     int getSpeedOf(Car* car, Road* road);
     int getTimeCostOf(Car* car, Road* road);

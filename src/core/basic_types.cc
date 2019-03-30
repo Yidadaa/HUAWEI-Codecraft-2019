@@ -296,7 +296,7 @@ void Traffic::getPathOfCar(Car* car) {
       if((*it)->from_id != u->cross->id && !(*it)->is_duplex) continue;
       // 然后对剩下的路口进行计算
       int d_t = getTimeCostOf(car, *it);
-      double new_d = u->min_d + getWeightOfRange(u->t, u->t + d_t, (*it)->id);
+      double new_d = u->min_d + getWeightOfRange(u->t, u->t + d_t, (*it)->id, car);
       // 找到该路口对应的目标节点
       int target_cross_id = (*it)->from_id != u->cross->id ?
         (*it)->from_id : (*it)->to_id;
@@ -337,17 +337,17 @@ void Traffic::updateWeightsByPath(Car* car) {
       t += 1;
       // 道路权重是时间开销/车道数量
       double w = time_cost / p->channels_num;
-      setWeightOf(t, p->id, w);
+      setWeightOf(t, p->id, w, car);
     }
   }
 }
 
 /* 获取某条路在某个时间段的平均权重 */
-double Traffic::getWeightOfRange(int from_time, int to_time, int road_id) {
+double Traffic::getWeightOfRange(int from_time, int to_time, int road_id, Car* car) {
   double w = 0.0;
   int t = to_time - from_time + 1;
   while (from_time <= to_time) {
-    w += getWeightOf(from_time, road_id);
+    w += getWeightOf(from_time, road_id, car);
     from_time ++;
   }
   // return w;
@@ -355,7 +355,7 @@ double Traffic::getWeightOfRange(int from_time, int to_time, int road_id) {
 }
 
 /* 获取某条路在某个时刻的权重 */
-double Traffic::getWeightOf(int t, int road_id) {
+double Traffic::getWeightOf(int t, int road_id, Car* car) {
   auto t_weights = id_time_weights.find(t);
   if (t_weights != id_time_weights.end()) {
     auto id_weights = t_weights->second.find(road_id);
@@ -364,11 +364,11 @@ double Traffic::getWeightOf(int t, int road_id) {
     }
   }
   Road* r = getRoadById(road_id);
-  return r->length;
+  return getTimeCostOf(car, r);
 }
 
 /* 设置某条路在某个时刻的权重 */
-void Traffic::setWeightOf(int t, int road_id, double w) {
+void Traffic::setWeightOf(int t, int road_id, double w, Car* car) {
   auto t_weights = id_time_weights.find(t);
   if (t_weights != id_time_weights.end()) {
     auto id_weights = t_weights->second.find(road_id);
@@ -376,7 +376,7 @@ void Traffic::setWeightOf(int t, int road_id, double w) {
       id_weights->second += w;
     }
   }
-  id_time_weights[t][road_id] = w + getWeightOf(t, road_id);
+  id_time_weights[t][road_id] = w + getWeightOf(t, road_id, car);
 }
 
 /* 根据id获取路 */
@@ -434,16 +434,7 @@ vector<Road*> Traffic::getAdjRoadOfCross(Cross* cross) {
 
 vector<string> Traffic::path2string() {
   vector<string> result;
-  int i = 0;
-  int d_t = 1;
   for (auto it = cars.begin(); it != cars.end(); it++) {
-    if (i >= avg_len * 1.2) {
-      d_t += 1;
-      i = 0;
-    }
-
-    it->plan_time += d_t;
-
     stringstream tmp;
     tmp << "(" << it->id << ", " << it->plan_time << ", ";
     int N = it->path.size();
@@ -455,7 +446,6 @@ vector<string> Traffic::path2string() {
     }
     tmp << ")";
     result.push_back(tmp.str());
-    i++;
   }
   return result;
 }
@@ -467,7 +457,15 @@ void Traffic::getAllCarPath() {
   sort(cars.begin(), cars.end(), [](Car a, Car b) {
     return a.path.size() < b.path.size();
   });
+  int i = 0;
+  int d_t = 1;
   for (auto it = cars.begin(); it != cars.end(); it++) {
+    if (i >= avg_len * 1.2) {
+      d_t += 1;
+      i = 0;
+    }
+    i++;
+    it->plan_time += d_t;
     getPathOfCar(&*it);
     updateWeightsByPath(&*it);
   }

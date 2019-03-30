@@ -1,7 +1,13 @@
-SDK_DIR="./SDK/SDK_C++/CodeCraft-2019"
+SDK_DIR="./SDK/SDK_C++"
 
-if [ -d ${SDK_DIR}/core ]; then
-  rm -rf ${SDK_DIR}/core
+if [ -d dist ]; then
+  rm -rf dist
 fi
+mkdir dist
 
-cp -r ./src/core ${SDK_DIR}
+cp -r ${SDK_DIR}/* dist
+
+cp -r ./src/core dist/CodeCraft-2019
+
+cd dist
+sh build.sh

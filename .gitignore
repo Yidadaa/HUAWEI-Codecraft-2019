@@ -10,6 +10,7 @@ CTestTestfile.cmake
 
 build
 bin
+dist
 
 # ignore vscode settings
 ipch

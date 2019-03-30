@@ -1,0 +1,1 @@
+cp -r ./src/core ./SDK/SDK_C++/CodeCraft-2019

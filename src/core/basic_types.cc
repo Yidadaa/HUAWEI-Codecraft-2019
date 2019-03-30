@@ -422,3 +422,27 @@ vector<Road*> Traffic::getAdjRoadOfCross(Cross* cross) {
   }
   return result;
 }
+
+vector<string> Traffic::path2string() {
+  vector<string> result;
+  for (auto it = cars.begin(); it != cars.end(); it++) {
+    stringstream tmp;
+    tmp << "(" << it->id << ", " << it->plan_time << ", ";
+    int N = it->path.size();
+    for (auto r:it->path) {
+      tmp << r->id;
+      if (r->id != it->path[N - 1]->id) {
+        tmp << ", ";
+      }
+    }
+    tmp << ")";
+    result.push_back(tmp.str());
+  }
+  return result;
+}
+
+void Traffic::getAllCarPath() {
+  for (auto it = cars.begin(); it != cars.end(); it++) {
+    getPathOfCar(&*it);
+  }
+}

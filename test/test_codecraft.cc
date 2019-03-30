@@ -164,11 +164,19 @@ TEST_F(ShortestPathTestData, test_traffic_getadjroadofcross) {
 
 /* 测试生成的最短路径 */
 TEST_F(ShortestPathTestData, test_traffic_getpathofcar) {
-  traffic.getPathOfCar(&cars[0]);
-  EXPECT_EQ(cars[0].path.size(), 2);
+  Car* the_car = traffic.getCarById(cars[0].id);
+  // traffic.getPathOfCar(the_car);
+  traffic.getAllCarPath();
+  EXPECT_EQ(the_car->path.size(), 2);
   int ids[] = { 1, 4 };
-  for (int i = 0; i < int(cars[0].path.size()); i++) {
-    EXPECT_EQ(cars[0].path[i]->id, ids[i]);
+  for (int i = 0; i < int(the_car->path.size()); i++) {
+    EXPECT_EQ(the_car->path[i]->id, ids[i]);
+  }
+  vector<string> spath;
+  string truth_path[] = { "(1, 1, 1, 4)" };
+  spath = traffic.path2string();
+  for (int i = 0; i < int(spath.size()); i++) {
+    cout << spath[i] << " = " << truth_path[i] << endl;
   }
 }
 

@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <ostream>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -146,6 +147,7 @@ class Traffic {
 
     void portCarsToPort();
     void getPathOfCar(Car*);
+    void getAllCarPath();
     double getWeightOfRange(int from_time, int to_time, int road_id);
     double getWeightOf(int, int);
     void setWeightOf(int, int, double);
@@ -157,6 +159,8 @@ class Traffic {
     Road* getRoadById(int);
     Car* getCarById(int);
     Cross* getCrossById(int);
+
+    vector<string> path2string();
 };
 
 #endif // CORE_BASI_CTYPES_H_

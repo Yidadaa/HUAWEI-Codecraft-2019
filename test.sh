@@ -8,3 +8,5 @@ cmake ..
 make
 cd ../bin
 ./TestCodeCraft ../data/config/car.txt ../data/config/road.txt ../data/config/cross.txt
+
+./CodeCraft-2019 ../data/config/car.txt ../data/config/road.txt ../data/config/cross.txt ./answer.txt

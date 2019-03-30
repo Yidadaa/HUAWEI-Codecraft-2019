@@ -316,7 +316,6 @@ void Traffic::getPathOfCar(Car* car) {
   }
   reverse(path.begin(), path.end());
   car->path = path; // 更新车辆的路径
-  updateWeightsByPath(car);
 }
 
 /* 根据车辆路径更新权重 */
@@ -342,6 +341,7 @@ double Traffic::getWeightOfRange(int from_time, int to_time, int road_id) {
     w += getWeightOf(from_time, road_id);
     from_time ++;
   }
+  // return w;
   return t > 0 ? w / t : w;
 }
 
@@ -444,5 +444,12 @@ vector<string> Traffic::path2string() {
 void Traffic::getAllCarPath() {
   for (auto it = cars.begin(); it != cars.end(); it++) {
     getPathOfCar(&*it);
+  }
+  sort(cars.begin(), cars.end(), [](Car a, Car b) {
+    return a.path.size() < b.path.size();
+  });
+  for (auto it = cars.begin(); it != cars.end(); it++) {
+    getPathOfCar(&*it);
+    updateWeightsByPath(&*it);
   }
 }

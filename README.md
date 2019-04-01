@@ -1,5 +1,6 @@
 # HUAWEI-Codecraft-2019
-Private repo for HUAWEI codecraft 2019 via Team - HuaHuaGuai
+Private repo for HUAWEI codecraft 2019 via Team - HuaHuaGuai.  
+**此代码在成渝赛区初赛排名35，总时间3526，憾失复赛名额。**
 
 ### 任务书阅读笔记
 #### 系统调度方法
